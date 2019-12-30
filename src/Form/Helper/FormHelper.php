@@ -43,7 +43,24 @@ class FormHelper
             case 'boolean':
                 return CheckboxType::class;
             case 'string':
-                return TextType::class;
+                switch ($schema->format ?? null) {
+                    case 'date-time':
+                        return DateTimeType::class;
+                    case 'date':
+                        return DateType::class;
+                    case 'time':
+                        return TimeType::class;
+                    case 'email':
+                    case 'idn-email':
+                        return EmailType::class;
+                    case 'uri':
+                    case 'uri-reference':
+                    case 'iri':
+                    case 'iri-reference':
+                        return UrlType::class;
+                    default:
+                        return TextType::class;
+                }
             default:
                 return null;
         }
@@ -80,6 +97,17 @@ class FormHelper
                 ];
             case 'object':
                 return $options + ['schema' => $schema];
+            case 'string':
+                switch ($schema->format ?? null) {
+                    case 'date-time':
+                        return $options + ['input' => 'string', 'input_format' => 'c'];
+                    case 'date':
+                        return $options + ['input' => 'string', 'input_format' => 'Y-m-d'];
+                    case 'time':
+                        return $options + ['input' => 'string', 'input_format' => 'H:i:s'];
+                    default:
+                        return $options;
+                }
             default:
                 return $options;
         }
