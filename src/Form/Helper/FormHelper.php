@@ -62,6 +62,7 @@ class FormHelper
         $options = [
             'label' => $schema->title ?? null,
             'help' => $schema->description ?? null,
+            'empty_data' => (string) ($schema->default ?? null),
         ];
 
         if (isset($schema->enum)) {
