@@ -36,13 +36,10 @@ $schema = json_decode($json);
 $subject = new \StdClass();
 $form = $container->get('form.factory')->create(SchemaType::class, $subject, ['data_schema' => $schema, 'constraints' => [new Schema($schema)]]);
 ```
+The form option `data_schema` MUST be an `object` representing a JSON schema.
 
 ## Documentation
 ### Form generation
-
-The subject of the form MUST be an instance of `StdClass`.  
-The form option `data_schema` MUST be an instance of `StdClass` representing a JSON schema.  
-The form option `data_class` MUST be `null`.  
 
 | JSON schema property | Symfony FormType | Form options |
 |------------------|------------------|---|

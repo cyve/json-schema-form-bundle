@@ -23,7 +23,9 @@ class SchemaType extends AbstractType
             $builder->add($name, $formType, $formOptions);
         }
 
-        $builder->addModelTransformer(new ObjectToArrayTransformer());
+        if (!$options['data_class']) {
+            $builder->addModelTransformer(new ObjectToArrayTransformer());
+        }
     }
 
     /**
@@ -32,10 +34,9 @@ class SchemaType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver
-            ->setRequired(['data_schema'])
+            ->setRequired('data_schema')
             ->setAllowedTypes('data_schema', 'object')
-            ->setAllowedValues('data_class', null)
-            ->setDefaults(['data_class' => null])
+            ->setDefault('data_class', null)
         ;
     }
 
