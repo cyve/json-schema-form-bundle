@@ -76,14 +76,22 @@ class FormHelper
             throw new \LogicException('Multiple types support is not implemeted yet');
         }
 
-        $options = [
-            'label' => $schema->title ?? null,
-            'help' => $schema->description ?? null,
-            'empty_data' => (string) ($schema->default ?? null),
-        ];
+        $options = [];
+
+        if (isset($schema->title)) {
+            $options['label'] = $schema->title;
+        }
+
+        if (isset($schema->description)) {
+            $options['help'] = $schema->description;
+        }
+
+        if (isset($schema->default)) {
+            $options['empty_data'] = $schema->default;
+        }
 
         if (isset($schema->enum)) {
-            return $options + ['choices' => \array_combine($schema->enum, $schema->enum)];
+            return $options + ['choices' => array_combine($schema->enum, $schema->enum)];
         }
 
         switch ($schema->type) {
