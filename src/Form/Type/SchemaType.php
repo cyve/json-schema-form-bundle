@@ -43,6 +43,7 @@ class SchemaType extends AbstractType
         $resolver
             ->setRequired(['data_schema'])
             ->setAllowedTypes('data_schema', 'object')
+            ->setAllowedValues('data_class', null)
             ->setDefaults(['data_class' => null])
         ;
     }
