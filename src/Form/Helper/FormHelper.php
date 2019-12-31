@@ -96,7 +96,7 @@ class FormHelper
                     'entry_options' => self::resolveFormOptions($schema->items),
                 ];
             case 'object':
-                return $options + ['schema' => $schema];
+                return $options + ['data_schema' => $schema];
             case 'string':
                 switch ($schema->format ?? null) {
                     case 'date-time':

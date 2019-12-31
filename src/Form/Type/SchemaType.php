@@ -12,7 +12,7 @@ class SchemaType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $rootSchema = $options['schema'];
+        $rootSchema = $options['data_schema'];
         foreach ($rootSchema->properties as $name => $schema) {
             if (!$formType = FormHelper::resolveFormType($schema)) {
                 continue;
@@ -41,8 +41,8 @@ class SchemaType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver
-            ->setRequired(['schema'])
-            ->setAllowedTypes('schema', 'object')
+            ->setRequired(['data_schema'])
+            ->setAllowedTypes('data_schema', 'object')
             ->setDefaults(['data_class' => null])
         ;
     }

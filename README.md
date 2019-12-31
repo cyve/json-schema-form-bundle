@@ -15,8 +15,8 @@ use Cyve\JsonSchemaFormBundle\Validator\Constraint\Schema;
 
 $json = <<<JSON
 {
-  "\$schema": "http://json-schema.org/draft-07/schema#",
-  "\$id": "http://example.com/product.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/product.schema.json",
   "title": "Product",
   "type": "object",
   "properties": {
@@ -32,5 +32,5 @@ $json = <<<JSON
 JSON;
 $schema = json_decode($json);
 $subject = new \StdClass();
-$form = $container->get('form.factory')->create(SchemaType::class, $subject, ['schema' => $schema, 'constraints' => [new Schema($schema)]]);
+$form = $container->get('form.factory')->create(SchemaType::class, $subject, ['data_schema' => $schema, 'constraints' => [new Schema($schema)]]);
 ```
