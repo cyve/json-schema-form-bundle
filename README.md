@@ -27,7 +27,7 @@ $json = <<<JSON
     },
     "name": {
       "type": "string"
-    },
+    }
   },
   "required": ["id", "name"]
 }
