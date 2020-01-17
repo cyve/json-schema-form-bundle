@@ -27,7 +27,7 @@ class FormHelper
             throw new \LogicException('Multiple types support is not implemeted yet');
         }
 
-        if (isset($schema->enum)) {
+        if (isset($schema->enum) || isset($schema->oneOf)) {
             return ChoiceType::class;
         }
 
@@ -88,6 +88,14 @@ class FormHelper
 
         if (isset($schema->default)) {
             $options['empty_data'] = $schema->default;
+        }
+
+        if (isset($schema->oneOf)) {
+            $tab = [];
+            foreach ($schema->oneOf as $value) {
+                $tab[$value->title] = $value->description;
+            }
+            return $options + ['choices' => $tab];
         }
 
         if (isset($schema->enum)) {
