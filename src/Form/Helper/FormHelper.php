@@ -94,7 +94,11 @@ class FormHelper
             $tab = [];
             foreach ($schema->oneOf as $value) {
                 $tab[$value->title] = $value->description;
+                if (isset($value->default) && $value->default) {
+                    $options['data'] = $value->description;
+                }
             }
+
             return $options + ['choices' => $tab];
         }
 
