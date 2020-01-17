@@ -27,6 +27,19 @@ $json = <<<JSON
     },
     "name": {
       "type": "string"
+    },
+    "source": {
+        "type": "*",
+        "oneOf": [
+            {
+                "title": "Git",
+                "description": "g"
+            },
+            {
+                "title": "SVN",
+                "description": "s"
+            }
+        ]
     }
   },
   "required": ["id", "name"]
@@ -43,7 +56,7 @@ The form option `data_schema` MUST be an `object` representing a JSON schema.
 
 | JSON schema property | Symfony FormType | Form options |
 |------------------|------------------|---|
-| `type: "*"` and `enum: [*]` | `ChoiceType` | `choices` is set with the content of `enum` |
+| `type: "*"` and `enum: [*]` or `oneOf: [*]` | `ChoiceType` | `choices` is set with the content of `enum` or `oneOf` |
 | `type: "array"` | `CollectionType` | `allow_add`, `allow_delete` and `delete_empty` are set to `true`.  `entry_type` and `entry_options` are resolved from the `items` sub-schema |
 | `type: "object"` | `SchemaType` | `data_schema` is set with the object sub-schema |
 | `type: "integer"` | `IntegerType` | |
