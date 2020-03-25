@@ -3,7 +3,6 @@
 namespace Cyve\JsonSchemaFormBundle\Form\Helper;
 
 use Cyve\JsonSchemaFormBundle\Form\Type\SchemaType;
-use njsosch\Form\Mapper\JsonSchemaPropertyTypeMapper;
 use stdClass;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -21,10 +20,10 @@ use Symfony\Component\Form\Extension\Core\Type\UrlType;
 class FormHelper
 {
     /**
-     * @param object $property
+     * @param stdClass $property
      * @return string|null
      */
-    public static function resolveFormType($property): ?string
+    public static function resolveFormType(stdClass $property): ?string
     {
         if (is_array($property->type)) {
             throw new \LogicException('Multiple types support is not implemeted yet');
@@ -73,10 +72,10 @@ class FormHelper
     }
 
     /**
-     * @param object $property
+     * @param stdClass $property
      * @return array
      */
-    public static function resolveFormOptions($property): array
+    public static function resolveFormOptions(stdClass $property): array
     {
         if (is_array($property->type)) {
             throw new \LogicException('Multiple types support is not implemeted yet');
