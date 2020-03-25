@@ -3,7 +3,6 @@
 namespace Cyve\JsonSchemaFormBundle\Form\Helper;
 
 use Cyve\JsonSchemaFormBundle\Form\Type\SchemaType;
-use stdClass;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -20,10 +19,10 @@ use Symfony\Component\Form\Extension\Core\Type\UrlType;
 class FormHelper
 {
     /**
-     * @param stdClass $property
+     * @param \stdClass $property
      * @return string|null
      */
-    public static function resolveFormType(stdClass $property): ?string
+    public static function resolveFormType(\stdClass $property): ?string
     {
         if (is_array($property->type)) {
             throw new \LogicException('Multiple types support is not implemeted yet');
@@ -72,10 +71,10 @@ class FormHelper
     }
 
     /**
-     * @param stdClass $property
+     * @param \stdClass $property
      * @return array
      */
-    public static function resolveFormOptions(stdClass $property): array
+    public static function resolveFormOptions(\stdClass $property): array
     {
         if (is_array($property->type)) {
             throw new \LogicException('Multiple types support is not implemeted yet');
@@ -140,10 +139,10 @@ class FormHelper
 
     /**
      * Check if the Property is from type number and has the (exclusive)minimum and (exclusive)maximum attribute
-     * @param stdClass $property
+     * @param \stdClass $property
      * @return bool
      */
-    public static function isRangeType(stdClass $property): bool
+    public static function isRangeType(\stdClass $property): bool
     {
         return 'number' === $property->type &&
             (property_exists($property, 'minimum')
