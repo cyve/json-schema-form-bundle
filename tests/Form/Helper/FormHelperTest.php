@@ -4,7 +4,9 @@ namespace Cyve\JsonSchemaFormBundle\Tests\Form\Helper;
 
 use Cyve\JsonSchemaFormBundle\Form\Helper\FormHelper;
 use Cyve\JsonSchemaFormBundle\Form\Type\SchemaType;
+use LogicException;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -17,15 +19,31 @@ use Symfony\Component\Form\Extension\Core\Type\RangeType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TimeType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
+use TypeError;
 
+/**
+ * Class FormHelperTest
+ * @package Cyve\JsonSchemaFormBundle\Tests\Form\Helper
+ * @coversDefaultClass \Cyve\JsonSchemaFormBundle\Form\Helper\FormHelper
+ */
 class FormHelperTest extends TestCase
 {
     /**
+     * @covers ::resolveFormType
      * @dataProvider resolveFormTypeDataProvider
+     * @param mixed $property
+     * @param mixed $expected
      */
-    public function testResolveFormType($schema, $expected)
+    public function testResolveFormType($property, $expected)
     {
-        $this->assertEquals($expected, FormHelper::resolveFormType($schema));
+        if (is_a($expected, LogicException::class, true)) {
+            $this->expectException($expected);
+        }
+        if (is_a($expected, TypeError::class, true)) {
+            $this->expectException($expected);
+        }
+        $formType = FormHelper::resolveFormType($property);
+        $this->assertEquals($expected, $formType);
     }
 
     public function resolveFormTypeDataProvider()
@@ -48,14 +66,26 @@ class FormHelperTest extends TestCase
         yield [(object) ['type' => 'string', 'format' => 'foo'], TextType::class];
         yield [(object) ['type' => 'string'], TextType::class];
         yield [(object) ['type' => 'null'], null];
+        yield [(object) ['type' => ['null', 'string']], LogicException::class];
+        yield [['type' => 'string'], TypeError::class];
     }
 
     /**
+     * @covers ::resolveFormOptions
      * @dataProvider resolveFormOptionsDataProvider
+     *
+     * @param mixed $property
+     * @param mixed $expected
      */
-    public function testResolveFormOptions($schema, $expected)
+    public function testResolveFormOptions($property, $expected)
     {
-        $this->assertEquals($expected, FormHelper::resolveFormOptions($schema));
+        if (is_a($expected, LogicException::class, true)) {
+            $this->expectException($expected);
+        }
+        if (is_a($expected, TypeError::class, true)) {
+            $this->expectException($expected);
+        }
+        $this->assertEquals($expected, FormHelper::resolveFormOptions($property));
     }
 
     public function resolveFormOptionsDataProvider()
@@ -111,5 +141,7 @@ class FormHelperTest extends TestCase
         yield [(object) ['type' => 'string', 'format' => 'date-time'], ['input' => 'string', 'input_format' => 'c']];
         yield [(object) ['type' => 'string', 'format' => 'date'], ['input' => 'string', 'input_format' => 'Y-m-d']];
         yield [(object) ['type' => 'string', 'format' => 'time'], ['input' => 'string', 'input_format' => 'H:i:s']];
+        yield [(object) ['type' => ['string', null], 'default' => 'foo'], LogicException::class];
+        yield [['type' => ['string', null], 'default' => 'foo'], TypeError::class];
     }
 }
