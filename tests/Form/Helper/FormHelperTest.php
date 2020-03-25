@@ -13,6 +13,7 @@ use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\RangeType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TimeType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
@@ -33,6 +34,10 @@ class FormHelperTest extends TestCase
         yield [(object) ['type' => 'object'], SchemaType::class];
         yield [(object) ['type' => 'integer'], IntegerType::class];
         yield [(object) ['type' => 'number'], NumberType::class];
+        yield [(object)['type' => 'number', 'minimum' => 0, 'maximum' => 100,], RangeType::class];
+        yield [(object) ['type' => 'number', 'exclusiveMinimum' => 0, 'maximum' => 100,], RangeType::class];
+        yield [(object) ['type' => 'number', 'minimum' => 0, 'exclusiveMaximum' => 100,], RangeType::class];
+        yield [(object) ['type' => 'number','exclusiveMinimum' => 0,'exclusiveMaximum' => 100,], RangeType::class];
         yield [(object) ['type' => 'boolean'], CheckboxType::class];
         yield [(object) ['type' => 'string', 'enum' => []], ChoiceType::class];
         yield [(object) ['type' => 'string', 'format' => 'date-time'], DateTimeType::class];
@@ -55,8 +60,50 @@ class FormHelperTest extends TestCase
 
     public function resolveFormOptionsDataProvider()
     {
+        yield [
+            (object)[
+                'type' => 'array',
+                'items' => (object)[
+                    'type' => 'object',
+                    'title' => 'My nested Schema 1',
+                    'description' => 'Yet another nested Schema 1',
+                    'properties' => (object)[
+                        'foo' => (object)[
+                            'title' => 'String in Nested Schema',
+                            'description' => 'Test the nested schema', 'default' => 'the default',
+                            'type' => 'string',
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'allow_add' => true,
+                'allow_delete' => true,
+                'delete_empty' => true,
+                'entry_type' => SchemaType::class,
+                'entry_options' => [
+                    'label' => 'My nested Schema 1',
+                    'help' => 'Yet another nested Schema 1',
+                    'data_schema' => (object)[
+                        'type' => 'object', 'title' => 'My nested Schema 1',
+                        'description' => 'Yet another nested Schema 1',
+                        'properties' => (object)[
+                            'foo' => (object)[
+                                'title' => 'String in Nested Schema',
+                                'description' => 'Test the nested schema',
+                                'default' => 'the default', 'type' => 'string',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
         yield [(object) ['type' => 'array', 'items' => (object) ['type' => 'string', 'default' => 'foo']], ['allow_add' => true, 'allow_delete' => true, 'delete_empty' => true, 'entry_type' => TextType::class, 'entry_options' => ['empty_data' => 'foo']]];
         yield [(object) ['type' => 'object', 'title' => 'Lorem ipsum'], ['label' => 'Lorem ipsum', 'data_schema' => (object) ['type' => 'object', 'title' => 'Lorem ipsum']]];
+        yield [(object) ['type' => 'number', 'minimum' => 0, 'maximum' => 100,],['attr' => ['min' => 0, 'max' => 100,],],];
+        yield [(object) ['type' => 'number', 'exclusiveMinimum' => 0, 'maximum' => 100,],['attr' => ['min' => 0,'max' => 100,],],];
+        yield [(object) ['type' => 'number', 'minimum' => 0, 'exclusiveMaximum' => 100,],['attr' => ['min' => 0,'max' => 100,],],];
+        yield [(object) ['type' => 'number', 'exclusiveMinimum' => 0, 'exclusiveMaximum' => 100,],['attr' => ['min' => 0,'max' => 100,],],];
         yield [(object) ['type' => 'string', 'title' => 'Lorem ipsum'], ['label' => 'Lorem ipsum']];
         yield [(object) ['type' => 'string', 'description' => 'Lorem ipsum'], ['help' => 'Lorem ipsum']];
         yield [(object) ['type' => 'string', 'default' => 'foo'], ['empty_data' => 'foo']];
