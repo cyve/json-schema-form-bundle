@@ -11,6 +11,7 @@ use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\RangeType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TimeType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
@@ -18,20 +19,20 @@ use Symfony\Component\Form\Extension\Core\Type\UrlType;
 class FormHelper
 {
     /**
-     * @param object $schema
+     * @param \stdClass $property
      * @return string|null
      */
-    public static function resolveFormType($schema): ?string
+    public static function resolveFormType(\stdClass $property): ?string
     {
-        if (is_array($schema->type)) {
+        if (is_array($property->type)) {
             throw new \LogicException('Multiple types support is not implemeted yet');
         }
 
-        if (isset($schema->enum)) {
+        if (isset($property->enum)) {
             return ChoiceType::class;
         }
 
-        switch ($schema->type) {
+        switch ($property->type) {
             case 'array':
                 return CollectionType::class;
             case 'object':
@@ -39,11 +40,14 @@ class FormHelper
             case 'integer':
                 return IntegerType::class;
             case 'number':
+                if (static::isRangeType($property)) {
+                    return RangeType::class;
+                }
                 return NumberType::class;
             case 'boolean':
                 return CheckboxType::class;
             case 'string':
-                switch ($schema->format ?? null) {
+                switch ($property->format ?? null) {
                     case 'date-time':
                         return DateTimeType::class;
                     case 'date':
@@ -67,46 +71,46 @@ class FormHelper
     }
 
     /**
-     * @param object $schema
+     * @param \stdClass $property
      * @return array
      */
-    public static function resolveFormOptions($schema): array
+    public static function resolveFormOptions(\stdClass $property): array
     {
-        if (is_array($schema->type)) {
+        if (is_array($property->type)) {
             throw new \LogicException('Multiple types support is not implemeted yet');
         }
 
         $options = [];
 
-        if (isset($schema->title)) {
-            $options['label'] = $schema->title;
+        if (isset($property->title)) {
+            $options['label'] = $property->title;
         }
 
-        if (isset($schema->description)) {
-            $options['help'] = $schema->description;
+        if (isset($property->description)) {
+            $options['help'] = $property->description;
         }
 
-        if (isset($schema->default)) {
-            $options['empty_data'] = $schema->default;
+        if (isset($property->default)) {
+            $options['empty_data'] = $property->default;
         }
 
-        if (isset($schema->enum)) {
-            return $options + ['choices' => array_combine($schema->enum, $schema->enum)];
+        if (isset($property->enum)) {
+            return $options + ['choices' => array_combine($property->enum, $property->enum)];
         }
 
-        switch ($schema->type) {
+        switch ($property->type) {
             case 'array':
                 return $options + [
                     'allow_add' => true,
                     'allow_delete' => true,
                     'delete_empty' => true,
-                    'entry_type' => self::resolveFormType($schema->items),
-                    'entry_options' => self::resolveFormOptions($schema->items),
+                    'entry_type' => self::resolveFormType($property->items),
+                    'entry_options' => self::resolveFormOptions($property->items),
                 ];
             case 'object':
-                return $options + ['data_schema' => $schema];
+                return $options + ['data_schema' => $property];
             case 'string':
-                switch ($schema->format ?? null) {
+                switch ($property->format ?? null) {
                     case 'date-time':
                         return $options + ['input' => 'string', 'input_format' => 'c'];
                     case 'date':
@@ -116,8 +120,37 @@ class FormHelper
                     default:
                         return $options;
                 }
+            case 'number':
+                switch (true) {
+                    case static::isRangeType($property):
+                        return $options + [
+                                'attr' => [
+                                    'min' => $property->minimum ?? $property->exclusiveMinimum,
+                                    'max' => $property->maximum ?? $property->exclusiveMaximum,
+                                ],
+                            ];
+                    default:
+                        return $options;
+                }
             default:
                 return $options;
         }
     }
+
+    /**
+     * Check if the Property is from type number and has the (exclusive)minimum and (exclusive)maximum attribute
+     * @param \stdClass $property
+     * @return bool
+     */
+    public static function isRangeType(\stdClass $property): bool
+    {
+        return 'number' === $property->type &&
+            (property_exists($property, 'minimum')
+                || property_exists($property, 'exclusiveMinimum')
+            ) && (
+                property_exists($property, 'maximum')
+                || property_exists($property, 'exclusiveMaximum')
+            );
+    }
+
 }
